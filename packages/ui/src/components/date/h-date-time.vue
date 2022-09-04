@@ -103,7 +103,7 @@ watch(
       else {
         format = props.format
       }
-      displayValue.value = localizedFormat(newValue, format, { locale: global.dateLocale.value })
+      displayValue.value = localizedFormat(newValue, format)
     }
   },
   { immediate: true },

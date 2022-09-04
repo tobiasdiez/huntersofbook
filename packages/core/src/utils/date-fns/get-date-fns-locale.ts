@@ -11,6 +11,7 @@ export async function loadDateFNSLocale(lang: string): Promise<Locale> {
 
       const data = 'default' in langFile ? langFile.default : (await importDateLocale(l)).default
       locale = data as Locale
+      console.log('2222')
       return locale
       break
     }

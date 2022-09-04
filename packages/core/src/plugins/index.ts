@@ -1,10 +1,10 @@
-import { InjectionKey, effectScope, getCurrentInstance, inject } from 'vue'
+import { InjectionKey, effectScope, getCurrentInstance, inject, onBeforeMount } from 'vue'
 import type { App, ComponentInternalInstance } from 'vue'
 import { I18n, I18nInjectionKey, useI18n } from 'vue-i18n'
 
 import autoAnimatePlugin from './auto-animate'
 import { VueIhuntersofbook } from './vue-huntersofbook'
-import { createComposer } from './composer'
+import { createComposer, loadDateFNSLocaleFactory } from './composer'
 
 declare module 'vue' {
 
@@ -56,7 +56,7 @@ export const createHuntersofbook = (plugins: IhuntersofbookPlugins): Ihuntersofb
 
 export function useHuntersofbook() {
   const instance = getCurrentInstance()
-  console.log(instance?.appContext.app.__VUE_HUNTERSOFBOOK_SYMBOL__)
+
   if (instance == null)
     throw new Error('useHuntersofbook must be called in a Vue component')
   if (!instance.isCE
@@ -66,11 +66,17 @@ export function useHuntersofbook() {
     throw new Error('useHuntersofbook not installed')
 
   const huntersofbook = getHuntersofbookInstance(instance)
+  const global = huntersofbook.global
+  console.log(global, 'global')
+  onBeforeMount(async () => {
+    console.log('bbb')
+    const res = await loadDateFNSLocaleFactory(undefined, global.selectLanguage.value)
+    console.log(res, 'onBeforeMount')
+  })
   return huntersofbook
 }
 
 function getHuntersofbookInstance(instance: ComponentInternalInstance): Ihuntersofbook {
-  console.log(instance.isCE, 'instance.isCE')
   const huntersofbook = inject(
     !instance.isCE
       ? instance.appContext.app.__VUE_HUNTERSOFBOOK_SYMBOL__ as InjectionKey<Ihuntersofbook>
@@ -91,7 +97,7 @@ function createGlobal(
   const obj = scope.run(() => createComposer(plugins)) as any
   if (obj == null)
     throw new Error('createGlobal must be called in a Vue component')
-
+  console.log(obj.dateLocale, 'obj')
   return [obj]
 }
 

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { loadDateFNSLocale } from 'huntersofbook'
+import { useHuntersofbook } from 'huntersofbook'
 import { useI18n } from 'vue-i18n'
 import { onMounted, ref } from 'vue'
+import messages from '@intlify/vite-plugin-vue-i18n/messages'
 const { locale, availableLocales } = useI18n()
 
 const isOpen = ref(false)
@@ -11,13 +12,31 @@ const languages = availableLocales.map(locale => ({
   value: locale,
 }))
 
+function getLanguage() {
+  if (typeof window !== 'undefined') {
+    const chooseLanguage = localStorage.getItem('chooseLanguage')
+    if (chooseLanguage)
+      return chooseLanguage
+    else localStorage.setItem('chooseLanguage', 'en')
+
+    // if has not choose language
+    const language = (navigator.language).toLowerCase()
+    const locales = Object.keys(messages)
+    for (const locale of locales) {
+      if (language.includes(locale))
+        return locale.split('-')[0]
+    }
+  }
+  return 'en'
+}
+const { global } = useHuntersofbook()
+
+onMounted(() => console.log(global.dateLocale.value))
 const changeLanguage = async (value: string) => {
-  await loadDateFNSLocale(value).then((res) => {
-    locale.value = value
-    isOpen.value = false
-    // window.location.reload()
-    localStorage.setItem('chooseLanguage', value)
-  })
+  locale.value = value
+  isOpen.value = false
+  // window.location.reload()
+  localStorage.setItem('chooseLanguage', value)
 }
 </script>
 
